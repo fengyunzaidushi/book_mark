@@ -36,5 +36,4 @@ htmlcov/
 *.log
 
 # Project specific
-data/*.json
-data/*.html
+data/

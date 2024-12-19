@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 from datetime import datetime
 import json
+import re
 
 def extract_domain(url):
     """Extract the base domain from a URL."""
@@ -22,6 +23,14 @@ def format_date(timestamp):
         pass
     return ""
 
+def clean_title(title):
+    """Remove invisible Unicode control characters and normalize whitespace."""
+    # Remove Unicode control characters (including U+202C)
+    cleaned = re.sub(r'[\u0000-\u001F\u007F-\u009F\u200B-\u200F\u202A-\u202E\u2060-\u2064\uFEFF]', '', title)
+    # Normalize whitespace
+    cleaned = ' '.join(cleaned.split())
+    return cleaned
+
 def extract_urls(html_file):
     """Extract URLs from HTML bookmarks file and organize by domain."""
     with open(html_file, 'r', encoding='utf-8') as f:
@@ -37,7 +46,7 @@ def extract_urls(html_file):
             continue
 
         domain = extract_domain(url)
-        title = link.string.strip() if link.string else ''
+        title = clean_title(link.string.strip() if link.string else '')
         add_date = format_date(link.get('add_date', ''))
 
         if domain not in domain_dict:
@@ -56,8 +65,8 @@ def extract_urls(html_file):
     return domain_dict
 
 def main():
-    input_file = 'data/bookmarks_2024_12_19_1.html'
-    output_file = 'data/urls_by_domain.json'
+    input_file = 'data/bookmarks_2024_12_19.html'
+    output_file = 'data/bookmarks_24_12_19_urls_by_domain.json'
     
     # Extract URLs and organize by domain
     domain_dict = extract_urls(input_file)
